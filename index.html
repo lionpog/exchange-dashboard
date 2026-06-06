@@ -23,29 +23,29 @@
     <div class="max-w-7xl mx-auto space-y-5">
         
         <header class="bg-gradient-to-r from-slate-800 to-indigo-900 text-white p-5 rounded-2xl shadow-md">
-            <h1 class="text-xl md:text-2xl font-bold tracking-wide">🌍 本國學生出國進修交流智慧數據看板</h1>
+            <h1 class="text-xl md:text-2xl font-bold tracking-wide">本國學生出國進修交流智慧數據看板</h1>
             <p class="text-indigo-100 text-xs mt-1">緊湊型排版優化 × 區域與男女比完美並列</p>
         </header>
 
         <section class="bg-white p-4 rounded-2xl shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-                <label class="block text-xs font-semibold text-slate-500 mb-1">📅 選擇學年度</label>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">選擇學年度</label>
                 <select id="yearSelect" class="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl p-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></select>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-500 mb-1">🏛️ 學校設立別</label>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">學校設立別</label>
                 <select id="typeSelect" class="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl p-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    <option value="all">✨ 全部（公立+私立）</option>
-                    <option value="公立">🏛️ 公立 / 國立大學</option>
-                    <option value="私立">🎒 私立大學</option>
+                    <option value="all">全部（公立+私立）</option>
+                    <option value="公立">公立 / 國立大學</option>
+                    <option value="私立">私立大學</option>
                 </select>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-500 mb-1">🏫 選擇學校</label>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">選擇學校</label>
                 <select id="schoolSelect" class="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl p-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></select>
             </div>
             <div>
-                <label class="block text-xs font-semibold text-slate-500 mb-1">📝 選擇系所</label>
+                <label class="block text-xs font-semibold text-slate-500 mb-1">選擇系所</label>
                 <select id="deptSelect" class="w-full bg-slate-50 border border-slate-200 text-sm rounded-xl p-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"></select>
             </div>
         </section>
@@ -55,9 +55,9 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div class="bg-white p-5 rounded-2xl shadow-xs flex flex-col h-[450px]">
                     <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
-                        📊 目的地國家交換人數排名 (前 15 名)
+                        目的地國家交換人數排名 (前 15 名)
                     </h2>
-                    <p class="text-[11px] text-green-600 font-medium mb-2">💡 前三名以綠色突顯，且第一名國家將在地圖上以黃金地標標記！</p>
+                    <p class="text-[11px] text-green-600 font-medium mb-2">前三名以綠色突顯，且第一名國家將在地圖上以紅色地標標記！</p>
                     <div class="flex-1 relative min-h-0">
                         <canvas id="rankingChart"></canvas>
                     </div>
@@ -65,9 +65,9 @@
 
                 <div class="bg-white p-5 rounded-2xl shadow-xs flex flex-col h-[450px]">
                     <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
-                        📍 前三名熱門交換國家地理定位
+                        前三名熱門交換國家地理定位
                     </h2>
-                    <p class="text-[11px] text-slate-400 mb-2">👑 第一名為金黃色地標，第二、三名為藍色地標</p>
+                    <p class="text-[11px] text-slate-400 mb-2">第一名為紅色地標，第二、三名為藍色地標</p>
                     <div class="flex-1 rounded-xl overflow-hidden border border-slate-100 relative min-h-0">
                         <div id="map"></div>
                     </div>
@@ -92,7 +92,7 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div class="bg-white p-5 rounded-2xl shadow-xs flex flex-col h-[380px]">
                     <h2 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
-                        🗺️ 出國進修交流大區域分佈
+                        出國進修交流大區域分佈
                     </h2>
                     <div class="flex-1 relative flex justify-center items-center min-h-0">
                         <div class="w-[300px] h-[300px]">
@@ -103,7 +103,7 @@
 
                 <div class="bg-white p-5 rounded-2xl shadow-xs flex flex-col h-[380px]">
                     <h2 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
-                        🍕 交流學生性別比例分布
+                        交流學生性別比例分布
                     </h2>
                     <div class="flex-1 relative flex justify-center items-center min-h-0">
                         <div class="w-[260px] h-[260px]">
@@ -182,7 +182,7 @@
 
         function initYearDropdown() {
             const years = [...new Set(rawData.map(item => item['學年度']))].filter(Boolean).sort((a, b) => b - a);
-            yearSelect.innerHTML = '<option value="all">✨ 全部年度 (105~113)</option>';
+            yearSelect.innerHTML = '<option value="all">全部年度 (105~113)</option>';
             years.forEach(y => { yearSelect.innerHTML += `<option value="${y}">${y} 學年度</option>`; });
 
             yearSelect.addEventListener('change', onFilterChange);
@@ -202,7 +202,7 @@
             if (selectedType !== 'all') filtered = filtered.filter(item => item['設立別'] === selectedType);
 
             const schools = [...new Set(filtered.map(item => item['學校名稱']))].filter(Boolean).sort();
-            schoolSelect.innerHTML = '<option value="all">✨ 全部學校</option>';
+            schoolSelect.innerHTML = '<option value="all">全部學校</option>';
             schools.forEach(s => { schoolSelect.innerHTML += `<option value="${s}">${s}</option>`; });
 
             onSchoolChange();
@@ -219,7 +219,7 @@
             if (selectedSchool !== 'all') filtered = filtered.filter(item => item['學校名稱'] === selectedSchool);
 
             const depts = [...new Set(filtered.map(item => item['系所名稱']))].filter(Boolean).sort();
-            deptSelect.innerHTML = '<option value="all">✨ 全部系所</option>';
+            deptSelect.innerHTML = '<option value="all">全部系所</option>';
             depts.forEach(d => { deptSelect.innerHTML += `<option value="${d}">${d}</option>`; });
 
             updateDashboardUI();
@@ -325,7 +325,7 @@
                 mapInstance.fitBounds(latLngBounds, { padding: [60, 60], maxZoom: 4 });
             }
 
-            // 🎨 圖表 1：橫條圖
+            // 圖表 1：橫條圖
             const ctxRanking = document.getElementById('rankingChart').getContext('2d');
             if (rankingChartInstance) rankingChartInstance.destroy();
             rankingChartInstance = new Chart(ctxRanking, {
@@ -352,7 +352,7 @@
                 }
             });
 
-            // 🎨 圖表 2：大區域分佈
+            // 圖表 2：大區域分佈
             const regionLabels = Object.keys(regionCounters);
             const regionValues = Object.values(regionCounters);
             const regionColors = ['#f59e0b', '#8b5cf6', '#14b8a6', '#ec4899', '#64748b', '#22c55e', '#ef4444', '#3b82f6'];
@@ -380,7 +380,7 @@
                 }
             });
 
-            // 🎨 圖表 3：男女比例圓餅圖
+            // 圖表 3：男女比例圓餅圖
             const ctxGender = document.getElementById('genderChart').getContext('2d');
             if (genderChartInstance) genderChartInstance.destroy();
             
