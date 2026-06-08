@@ -57,7 +57,7 @@
                     <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
                         目的地國家交換人數排名 (前 15 名)
                     </h2>
-                    <p class="text-[11px] text-green-600 font-medium mb-2">前三名以綠色突顯，且第一名國家將在地圖上以紅色地標標記！</p>
+                    <p class="text-[11px] text-indigo-600 font-medium mb-2">前三名特別以深藍/靛紫尊爵色突顯，且第一名國家將自動加冕皇冠 👑！</p>
                     <div class="flex-1 relative min-h-0">
                         <canvas id="rankingChart"></canvas>
                     </div>
@@ -67,7 +67,7 @@
                     <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
                         前三名熱門交換國家地理定位
                     </h2>
-                    <p class="text-[11px] text-slate-400 mb-2">第一名為紅色地標，第二、三名為藍色地標</p>
+                    <p class="text-[11px] text-slate-400 mb-2">第一名為特色地標，彈出視窗將顯示對應的金銀銅榮譽獎牌</p>
                     <div class="flex-1 rounded-xl overflow-hidden border border-slate-100 relative min-h-0">
                         <div id="map"></div>
                     </div>
@@ -265,14 +265,18 @@
             const countryLabels = sortedCountries.map(x => x[0]);
             const countryValues = sortedCountries.map(x => x[1]);
 
+            // 💡 調整前三名的橫條顏色：皇家深藍與尊爵靛紫色（與下方看板藍色系完美適配）
             const barBackgroundColors = [];
             const barBorderColors = [];
             for (let i = 0; i < countryValues.length; i++) {
-                if (i < 3) {
-                    barBackgroundColors.push('rgba(34, 197, 94, 0.85)'); 
-                    barBorderColors.push('rgb(22, 163, 74)');
+                if (i === 0) {
+                    barBackgroundColors.push('rgba(30, 58, 138, 0.9)');  // 皇家深藍 (第一名)
+                    barBorderColors.push('rgb(29, 78, 216)');
+                } else if (i < 3) {
+                    barBackgroundColors.push('rgba(55, 48, 163, 0.8)');  // 尊爵靛紫 (第二、三名)
+                    barBorderColors.push('rgb(67, 56, 202)');
                 } else {
-                    barBackgroundColors.push('rgba(59, 130, 246, 0.75)');
+                    barBackgroundColors.push('rgba(59, 130, 246, 0.75)'); // 原本的亮藍色 (其餘名次)
                     barBorderColors.push('rgb(37, 99, 235)');
                 }
             }
@@ -287,6 +291,13 @@
 
             const topThreeCountries = sortedCountries.slice(0, 3);
             const latLngBounds = [];
+
+            // 💡 定義前三名的獎牌圖示、文字與適配的主題文字顏色
+            const medalConfig = [
+                { emoji: "🥇", text: "金牌", color: "#d97706" }, // 質感金
+                { emoji: "🥈", text: "銀牌", color: "#475569" }, // 深銀灰
+                { emoji: "🥉", text: "銅牌", color: "#b45309" }  // 琥珀銅
+            ];
 
             topThreeCountries.forEach((item, index) => {
                 const countryName = item[0];
@@ -306,10 +317,11 @@
                         markerOptions.icon = goldIcon;
                     }
 
+                    // 💡 將原本的獎盃換成 🥇/🥈/🥉 獎牌標籤
                     const marker = L.marker(coordinates, markerOptions).addTo(mapInstance)
                         .bindPopup(`
                             <div style="font-family: sans-serif; font-size:13px; line-height: 1.4;">
-                                <b style="color:${index === 0 ? '#b45309' : '#16a34a'}; font-size:14px;">🏆 第 ${index + 1} 名</b><br>
+                                <b style="color:${medalConfig[index].color}; font-size:14px;">${medalConfig[index].emoji} ${medalConfig[index].text} (第 ${index + 1} 名)</b><br>
                                 <b>國家：</b>${countryName}<br>
                                 <b>交流人數：</b>${countValue} 人
                             </div>
@@ -348,16 +360,34 @@
                         legend: { display: false },
                         datalabels: { display: false }
                     },
-                    scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+                    scales: { 
+                        x: { beginAtZero: true, ticks: { precision: 0 } },
+                        y: {
+                            ticks: {
+                                // 💡 關鍵優化：在橫條圖的第一名國家前自動添加 👑 皇冠圖示
+                                callback: function(value, index, ticks) {
+                                    const label = countryLabels[index];
+                                    if (index === 0) {
+                                        return '👑 ' + label;
+                                    }
+                                    return label;
+                                },
+                                font: {
+                                    weight: function(context) {
+                                        return context.index === 0 ? 'bold' : 'normal';
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             });
 
-            // 圖表 2：大區域分佈（已新增自動百分比顯示與排版優化）
+            // 圖表 2：大區域分佈（具備自動百分比顯示）
             const regionLabels = Object.keys(regionCounters);
             const regionValues = Object.values(regionCounters);
             const regionColors = ['#f59e0b', '#8b5cf6', '#14b8a6', '#ec4899', '#64748b', '#22c55e', '#ef4444', '#3b82f6'];
             
-            // 計算大區域數據的總人數，供百分比計算使用
             const regionTotal = regionValues.reduce((sum, val) => sum + val, 0);
 
             const ctxRegion = document.getElementById('regionChart').getContext('2d');
@@ -385,8 +415,7 @@
                             formatter: (value) => {
                                 if (value === 0 || regionTotal === 0) return '';
                                 const percentage = ((value / regionTotal) * 100).toFixed(1);
-                                // 當比例大於 4% 時才在圓餅圖內顯示標籤，避免極小區塊擠在一起
-                                return percentage > 4 ? `${percentage}%` : '';
+                                return percentage > 4 ? `${percentage}%` : ''; // 防止極小空格塞下文字重疊
                             },
                             textAlign: 'center'
                         }
