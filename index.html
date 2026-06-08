@@ -14,13 +14,11 @@
         body { font-family: 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', sans-serif; }
         #map { width: 100%; height: 100%; border-radius: 0.75rem; z-index: 1; }
         
-        /* 🎨 調整：將第一名改為精準的橘黃色調濾鏡 */
-        .orange-gold-marker {
-            filter: hue-rotate(15deg) brightness(1.1) saturate(1.8) drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
+        .orange-marker {
+            filter: hue-rotate(33deg) brightness(1.1) saturate(2.5) drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
         }
-        /* 🎨 調整：將第二、三名改為沉穩的藍色調濾鏡 */
         .blue-marker {
-            filter: hue-rotate(190deg) brightness(0.9) saturate(1.4) drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
+            filter: hue-rotate(190deg) brightness(0.9) saturate(1.5) drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
         }
     </style>
 </head>
@@ -30,7 +28,6 @@
         
         <header class="bg-gradient-to-r from-slate-800 to-indigo-900 text-white p-5 rounded-2xl shadow-md">
             <h1 class="text-xl md:text-2xl font-bold tracking-wide">本國學生出國進修交流智慧數據看板</h1>
-            <p class="text-indigo-100 text-xs mt-1">緊湊型排版優化 × 第一名榮譽至高視覺突顯</p>
         </header>
 
         <section class="bg-white p-4 rounded-2xl shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -60,20 +57,18 @@
             
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
                 <div class="bg-white p-5 rounded-2xl shadow-xs flex flex-col h-[450px]">
-                    <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
+                    <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-3">
                         目的地國家交換人數排名 (前 15 名)
                     </h2>
-                    <p class="text-[11px] text-orange-600 font-bold mb-2">✨ 冠軍國家享專屬「橘黃色」絢麗長條，並自動加冕傲視群雄之皇冠 👑！</p>
                     <div class="flex-1 relative min-h-0">
                         <canvas id="rankingChart"></canvas>
                     </div>
                 </div>
 
                 <div class="bg-white p-5 rounded-2xl shadow-xs flex flex-col h-[450px]">
-                    <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
+                    <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-3">
                         前三名熱門交換國家地理定位
                     </h2>
-                    <p class="text-[11px] text-slate-400 mb-2">第一名為橘黃色地標（自動開啟氣泡），第二、三名為沉穩藍色地標</p>
                     <div class="flex-1 rounded-xl overflow-hidden border border-slate-100 relative min-h-0">
                         <div id="map"></div>
                     </div>
@@ -283,9 +278,9 @@
             const latLngBounds = [];
 
             const medalConfig = [
-                { emoji: "🥇", color: "#ea580c" }, // 第一名配亮橘色文字
-                { emoji: "🥈", color: "#1e3a8a" }, // 第二名配深藍文字
-                { emoji: "🥉", color: "#1e3a8a" }  // 第三名配深藍文字
+                { emoji: "🥇", color: "#ea580c" }, 
+                { emoji: "🥈", color: "#1e3a8a" }, 
+                { emoji: "🥉", color: "#1e3a8a" }  
             ];
 
             topThreeCountries.forEach((item, index) => {
@@ -296,18 +291,15 @@
                 if (coordinates) {
                     let markerOptions = {};
                     
-                    // 💡 修改點：分配地標色彩類別
                     if (index === 0) {
-                        // 第一名：套用橘黃色濾鏡
                         markerOptions.icon = L.divIcon({
-                            className: 'orange-gold-marker',
+                            className: 'orange-marker',
                             html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png" style="width:25px; height:41px;"/>`,
                             iconSize: [25, 41],
                             iconAnchor: [12, 41],
                             popupAnchor: [1, -34]
                         });
                     } else {
-                        // 第二、三名：套用藍色濾鏡
                         markerOptions.icon = L.divIcon({
                             className: 'blue-marker',
                             html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png" style="width:25px; height:41px;"/>`,
@@ -341,8 +333,8 @@
             if (rankingChartInstance) rankingChartInstance.destroy();
 
             const orangeGoldGrad = ctxRanking.createLinearGradient(0, 0, 400, 0);
-            orangeGoldGrad.addColorStop(0, '#fde047'); // 鮮黃色
-            orangeGoldGrad.addColorStop(1, '#ea580c'); // 亮橘色
+            orangeGoldGrad.addColorStop(0, '#fde047'); 
+            orangeGoldGrad.addColorStop(1, '#ea580c'); 
 
             const barBackgroundColors = [];
             const barBorderColors = [];
