@@ -148,7 +148,7 @@
             "菲律賓": [12.8797, 121.7740], "印度尼西亞": [-0.7893, 113.9213], "印尼": [-0.7893, 113.9213],
             "印度": [20.5937, 78.9629], "愛爾蘭": [53.4129, -8.2439], "挪威": [60.4720, 8.4689],
             "冰島": [64.9631, -19.0208], "立陶宛共和國": [55.1694, 23.8813], "立陶宛": [55.1694, 23.8813],
-            "土耳其": [38.9637, 35.2433]
+            "土耳切": [38.9637, 35.2433]
         };
 
         const yearSelect = document.getElementById('yearSelect');
@@ -276,10 +276,11 @@
             const topThreeCountries = sortedCountries.slice(0, 3);
             const latLngBounds = [];
 
+            // 💡 調整：把金牌、銀牌、銅牌文字去掉，對應的氣泡框顏色也微調
             const medalConfig = [
-                { emoji: "🥇", text: "金牌", color: "#b45309" }, 
-                { emoji: "🥈", text: "銀牌", color: "#475569" }, 
-                { emoji: "🥉", text: "銅牌", color: "#9a3412" }  
+                { emoji: "🥇", color: "#ea580c" }, // 第一名配亮橘色文字
+                { emoji: "🥈", color: "#475569" }, // 第二名配深灰藍文字
+                { emoji: "🥉", color: "#1e3a8a" }  // 第三名配原有的深藍文字
             ];
 
             topThreeCountries.forEach((item, index) => {
@@ -290,8 +291,7 @@
                 if (coordinates) {
                     let markerOptions = {};
                     
-                    // 💡 修正：第一名改回原本標準的 Leaflet 紅色標籤（不見、隨意彈跳的錯誤已被修正）
-                    // 第二、三名則套用藍綠色的 `gold-marker` 樣式
+                    // 第一名改回原本標準紅色標籤，第二、三名使用藍綠色調
                     if (index > 0) {
                         markerOptions.icon = L.divIcon({
                             className: 'gold-marker',
@@ -302,17 +302,17 @@
                         });
                     }
 
-                    // 💡 修正：彈出泡泡視窗格式恢復原狀，第一名顯示金牌
+                    // 💡 調整：去掉「銅牌」等字樣，僅保留 🥇/🥈/🥉 + 第 X 名
                     const marker = L.marker(coordinates, markerOptions).addTo(mapInstance)
                         .bindPopup(`
                             <div style="font-family: sans-serif; font-size:13px; line-height: 1.4;">
-                                <b style="color:${medalConfig[index].color}; font-size:13px;">${medalConfig[index].emoji} ${medalConfig[index].text} (第 ${index + 1} 名)</b><br>
+                                <b style="color:${medalConfig[index].color}; font-size:13px;">${medalConfig[index].emoji} 第 ${index + 1} 名</b><br>
                                 <b>國家：</b>${countryName}<br>
                                 <b>交流人數：</b>${countValue.toLocaleString()} 人
                             </div>
                         `);
                     
-                    if (index === 0) marker.openPopup(); // 自動展開第一名的資訊氣泡
+                    if (index === 0) marker.openPopup(); 
                     mapMarkers.push(marker);
                     latLngBounds.push(coordinates);
                 }
@@ -326,17 +326,17 @@
             const ctxRanking = document.getElementById('rankingChart').getContext('2d');
             if (rankingChartInstance) rankingChartInstance.destroy();
 
-            // 第一名專屬炫光金漸層
-            const goldGrad = ctxRanking.createLinearGradient(0, 0, 400, 0);
-            goldGrad.addColorStop(0, '#fbbf24');
-            goldGrad.addColorStop(1, '#d97706');
+            // 💡 調整：第一名專屬漸層改為精準飽滿的「橘黃色」漸層（由黃偏橘）
+            const orangeGoldGrad = ctxRanking.createLinearGradient(0, 0, 400, 0);
+            orangeGoldGrad.addColorStop(0, '#fde047'); // 鮮黃色
+            orangeGoldGrad.addColorStop(1, '#ea580c'); // 亮橘色
 
             const barBackgroundColors = [];
             const barBorderColors = [];
             for (let i = 0; i < countryValues.length; i++) {
                 if (i === 0) {
-                    barBackgroundColors.push(goldGrad);      // 👑 第一名：至尊炫光金漸層
-                    barBorderColors.push('#b45309');
+                    barBackgroundColors.push(orangeGoldGrad); // 👑 第一名：飽滿橘黃色漸層
+                    barBorderColors.push('#ea580c');
                 } else if (i < 3) {
                     barBackgroundColors.push('rgba(55, 48, 163, 0.85)'); // 第二、三名：尊爵靛紫
                     barBorderColors.push('rgb(67, 56, 202)');
@@ -375,7 +375,7 @@
                                 callback: function(value, index, ticks) {
                                     const label = countryLabels[index];
                                     if (index === 0) {
-                                        return '👑 ' + label; // 第一名加上皇冠
+                                        return '👑 ' + label;
                                     }
                                     return label;
                                 },
@@ -388,7 +388,7 @@
                                     }
                                 },
                                 color: function(context) {
-                                    return context.index === 0 ? '#b45309' : '#475569';
+                                    return context.index === 0 ? '#ea580c' : '#475569'; // 座標文字第一名同步改為橘黃主題色
                                 }
                             }
                         }
