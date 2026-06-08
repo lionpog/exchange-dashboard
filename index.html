@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>105~113年 本國學生出國進修交流數據看板 v6</title>
+    <title>105~113年 本國學生出國進修交流數據看板 v5</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -13,15 +13,8 @@
     <style>
         body { font-family: 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', sans-serif; }
         #map { width: 100%; height: 100%; border-radius: 0.75rem; z-index: 1; }
-        
-        /* 💡 第一名金色標籤特殊動畫與亮光效果，防止被地圖邊緣遮擋 */
-        .premium-gold-marker {
-            filter: drop-shadow(0px 4px 8px rgba(217, 119, 6, 0.6));
-            animation: pulse-marker 2s infinite ease-in-out;
-        }
-        @keyframes pulse-marker {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
+        .gold-marker {
+            filter: hue-rotate(140deg) brightness(1.2) drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
         }
     </style>
 </head>
@@ -31,6 +24,7 @@
         
         <header class="bg-gradient-to-r from-slate-800 to-indigo-900 text-white p-5 rounded-2xl shadow-md">
             <h1 class="text-xl md:text-2xl font-bold tracking-wide">本國學生出國進修交流智慧數據看板</h1>
+            <p class="text-indigo-100 text-xs mt-1">緊湊型排版優化 × 區域與男女比完美並列</p>
         </header>
 
         <section class="bg-white p-4 rounded-2xl shadow-xs grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -63,7 +57,7 @@
                     <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
                         目的地國家交換人數排名 (前 15 名)
                     </h2>
-                    <p class="text-[11px] text-amber-600 font-bold mb-2">✨ 冠軍國家享專屬「極光金」絢麗長條，並自動加冕傲視群雄之皇冠 👑！</p>
+                    <p class="text-[11px] text-green-600 font-medium mb-2">前三名以綠色突顯，且第一名國家將在地圖上以紅色地標標記！</p>
                     <div class="flex-1 relative min-h-0">
                         <canvas id="rankingChart"></canvas>
                     </div>
@@ -73,7 +67,7 @@
                     <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
                         前三名熱門交換國家地理定位
                     </h2>
-                    <p class="text-[11px] text-slate-400 mb-2">第一名享有「巨型金色榮譽地標」與尊爵彈出視窗加冕</p>
+                    <p class="text-[11px] text-slate-400 mb-2">第一名為紅色地標，第二、三名為藍色地標</p>
                     <div class="flex-1 rounded-xl overflow-hidden border border-slate-100 relative min-h-0">
                         <div id="map"></div>
                     </div>
@@ -271,6 +265,18 @@
             const countryLabels = sortedCountries.map(x => x[0]);
             const countryValues = sortedCountries.map(x => x[1]);
 
+            const barBackgroundColors = [];
+            const barBorderColors = [];
+            for (let i = 0; i < countryValues.length; i++) {
+                if (i < 3) {
+                    barBackgroundColors.push('rgba(34, 197, 94, 0.85)'); 
+                    barBorderColors.push('rgb(22, 163, 74)');
+                } else {
+                    barBackgroundColors.push('rgba(59, 130, 246, 0.75)');
+                    barBorderColors.push('rgb(37, 99, 235)');
+                }
+            }
+
             document.getElementById('totalStudents').innerText = (totalMale + totalFemale).toLocaleString();
             document.getElementById('totalMaleCount').innerText = totalMale.toLocaleString();
             document.getElementById('totalFemaleCount').innerText = totalFemale.toLocaleString();
@@ -282,12 +288,6 @@
             const topThreeCountries = sortedCountries.slice(0, 3);
             const latLngBounds = [];
 
-            const medalConfig = [
-                { emoji: "🥇", text: "金牌", color: "#b45309" }, // 升級高對比深琥珀金
-                { emoji: "🥈", text: "銀牌", color: "#475569" }, 
-                { emoji: "🥉", text: "銅牌", color: "#9a3412" }  
-            ];
-
             topThreeCountries.forEach((item, index) => {
                 const countryName = item[0];
                 const countValue = item[1];
@@ -295,42 +295,25 @@
 
                 if (coordinates) {
                     let markerOptions = {};
-                    
-                    // 💡 優化：第一名（金牌）換成放大版皇家金地標，並加上微妙的呼吸動畫效果
                     if (index === 0) {
                         const goldIcon = L.divIcon({
-                            className: 'premium-gold-marker',
-                            html: `<svg width="36" height="54" viewBox="0 0 24 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 0C5.37 0 0 5.37 0 12C0 21 12 36 12 36C12 36 24 21 24 12C24 5.37 18.63 0 12 0ZM12 16.5C9.51 16.5 7.5 14.49 7.5 12C7.5 9.51 9.51 7.5 12 7.5C14.49 7.5 16.5 9.51 16.5 12C16.5 14.49 14.49 16.5 12 16.5Z" fill="#d97706"/>
-                                    <circle cx="12" cy="12" r="3.5" fill="#fff"/>
-                                   </svg>`,
-                            iconSize: [36, 54],
-                            iconAnchor: [18, 54],
-                            popupAnchor: [0, -46]
+                            className: 'gold-marker',
+                            html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png" style="width:25px; height:41px;"/>`,
+                            iconSize: [25, 41],
+                            iconAnchor: [12, 41],
+                            popupAnchor: [1, -34]
                         });
                         markerOptions.icon = goldIcon;
                     }
 
-                    // 💡 優化：第一名的彈出視窗注入「👑 皇家特選」的頂級尊榮感與底色加強
-                    const popupContent = index === 0 ? `
-                        <div style="font-family: sans-serif; font-size:13px; line-height: 1.4; padding: 2px;">
-                            <div style="background: #fef3c7; border: 1px solid #f59e0b; padding: 4px 8px; border-radius: 6px; margin-bottom: 6px;">
-                                <b style="color:#d97706; font-size:14px; display:block; text-align:center;">👑 皇家特選 👑</b>
-                                <b style="color:#b45309; font-size:13px; display:block; text-align:center;">${medalConfig[index].emoji} ${medalConfig[index].text} (第 1 名)</b>
-                            </div>
-                            <b>國家：</b><span style="font-size:14px; font-weight:bold; color:#1e3a8a;">${countryName}</span><br>
-                            <b>總交流人數：</b><span style="font-size:14px; font-weight:bold; color:#d97706;">${countValue.toLocaleString()}</span> 人
-                        </div>
-                    ` : `
-                        <div style="font-family: sans-serif; font-size:13px; line-height: 1.4;">
-                            <b style="color:${medalConfig[index].color}; font-size:13px;">${medalConfig[index].emoji} ${medalConfig[index].text} (第 ${index + 1} 名)</b><br>
-                            <b>國家：</b>${countryName}<br>
-                            <b>交流人數：</b>${countValue.toLocaleString()} 人
-                        </div>
-                    `;
-
                     const marker = L.marker(coordinates, markerOptions).addTo(mapInstance)
-                        .bindPopup(popupContent);
+                        .bindPopup(`
+                            <div style="font-family: sans-serif; font-size:13px; line-height: 1.4;">
+                                <b style="color:${index === 0 ? '#b45309' : '#16a34a'}; font-size:14px;">🏆 第 ${index + 1} 名</b><br>
+                                <b>國家：</b>${countryName}<br>
+                                <b>交流人數：</b>${countValue} 人
+                            </div>
+                        `);
                     
                     if (index === 0) marker.openPopup();
                     mapMarkers.push(marker);
@@ -345,27 +328,6 @@
             // 圖表 1：橫條圖
             const ctxRanking = document.getElementById('rankingChart').getContext('2d');
             if (rankingChartInstance) rankingChartInstance.destroy();
-
-            // 💡 關鍵變革：使用 Chart.js Canvas Gradient 建立酷炫的極光金黃色漸層給第一名，其餘保持優雅色系
-            const goldGrad = ctxRanking.createLinearGradient(0, 0, 400, 0);
-            goldGrad.addColorStop(0, '#fbbf24'); // 亮金
-            goldGrad.addColorStop(1, '#d97706'); // 琥珀深金
-
-            const barBackgroundColors = [];
-            const barBorderColors = [];
-            for (let i = 0; i < countryValues.length; i++) {
-                if (i === 0) {
-                    barBackgroundColors.push(goldGrad);      // 👑 第一名：至尊炫光金漸層
-                    barBorderColors.push('#b45309');         // 金色質感深邊框
-                } else if (i < 3) {
-                    barBackgroundColors.push('rgba(55, 48, 163, 0.85)'); // 第二、三名：尊爵靛紫
-                    barBorderColors.push('rgb(67, 56, 202)');
-                } else {
-                    barBackgroundColors.push('rgba(59, 130, 246, 0.75)'); // 其餘：極簡沉穩藍
-                    barBorderColors.push('rgb(37, 99, 235)');
-                }
-            }
-
             rankingChartInstance = new Chart(ctxRanking, {
                 type: 'bar',
                 data: {
@@ -374,10 +336,7 @@
                         data: countryValues,
                         backgroundColor: barBackgroundColors,
                         borderColor: barBorderColors,
-                        borderWidth: function(context) {
-                            // 讓第一名的長條外框更厚，增加立體感
-                            return context.dataIndex === 0 ? 2.5 : 1.2;
-                        },
+                        borderWidth: 1.5,
                         borderRadius: 4
                     }]
                 },
@@ -389,41 +348,16 @@
                         legend: { display: false },
                         datalabels: { display: false }
                     },
-                    scales: { 
-                        x: { beginAtZero: true, ticks: { precision: 0 } },
-                        y: {
-                            ticks: {
-                                callback: function(value, index, ticks) {
-                                    const label = countryLabels[index];
-                                    if (index === 0) {
-                                        return '👑 ' + label; // 第一名名稱加皇冠
-                                    }
-                                    return label;
-                                },
-                                font: {
-                                    weight: function(context) {
-                                        return context.index === 0 ? 'bold' : 'normal';
-                                    },
-                                    size: function(context) {
-                                        // 讓第一名的國家文字稍微大一點點，更突出
-                                        return context.index === 0 ? 13 : 12;
-                                    }
-                                },
-                                color: function(context) {
-                                    // 讓第一名的字體顏色變成顯眼的深琥珀色
-                                    return context.index === 0 ? '#b45309' : '#475569';
-                                }
-                            }
-                        }
-                    }
+                    scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
                 }
             });
 
-            // 圖表 2：大區域分佈
+            // 圖表 2：大區域分佈（已新增自動百分比顯示與排版優化）
             const regionLabels = Object.keys(regionCounters);
             const regionValues = Object.values(regionCounters);
             const regionColors = ['#f59e0b', '#8b5cf6', '#14b8a6', '#ec4899', '#64748b', '#22c55e', '#ef4444', '#3b82f6'];
             
+            // 計算大區域數據的總人數，供百分比計算使用
             const regionTotal = regionValues.reduce((sum, val) => sum + val, 0);
 
             const ctxRegion = document.getElementById('regionChart').getContext('2d');
@@ -451,6 +385,7 @@
                             formatter: (value) => {
                                 if (value === 0 || regionTotal === 0) return '';
                                 const percentage = ((value / regionTotal) * 100).toFixed(1);
+                                // 當比例大於 4% 時才在圓餅圖內顯示標籤，避免極小區塊擠在一起
                                 return percentage > 4 ? `${percentage}%` : '';
                             },
                             textAlign: 'center'
@@ -498,3 +433,4 @@
     </script>
 </body>
 </html>
+
