@@ -58,7 +58,6 @@
                     <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
                         目的地國家交換人數排名 (前 15 名)
                     </h2>
-
                     <div class="flex-1 relative min-h-0">
                         <canvas id="rankingChart"></canvas>
                     </div>
@@ -270,13 +269,13 @@
             const barBorderColors = [];
             for (let i = 0; i < countryValues.length; i++) {
                 if (i === 0) {
-                    barBackgroundColors.push('rgba(249, 115, 22, 0.85)'); // 第一名：橘色 (Tailwind orange-500)
+                    barBackgroundColors.push('rgba(249, 115, 22, 0.85)'); // 第一名：橘色
                     barBorderColors.push('rgb(234, 88, 12)');
                 } else if (i === 1 || i === 2) {
-                    barBackgroundColors.push('rgba(30, 58, 138, 0.85)');  // 第二、三名：深藍色 (Tailwind blue-900)
+                    barBackgroundColors.push('rgba(30, 58, 138, 0.85)');  // 第二、三名：深藍色
                     barBorderColors.push('rgb(23, 37, 84)');
                 } else {
-                    barBackgroundColors.push('rgba(59, 130, 246, 0.75)'); // 其餘：原本的藍色
+                    barBackgroundColors.push('rgba(59, 130, 246, 0.75)'); // 其餘：淺藍色
                     barBorderColors.push('rgb(37, 99, 235)');
                 }
             }
@@ -305,7 +304,6 @@
                     if (index === 0) {
                         medal = '🥇';
                         titleText = '第一名';
-                        // 第一名：改用橘色濾鏡樣式
                         const orangeIcon = L.divIcon({
                             className: 'orange-marker',
                             html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png" style="width:25px; height:41px;"/>`,
@@ -341,7 +339,7 @@
                 mapInstance.fitBounds(latLngBounds, { padding: [60, 60], maxZoom: 4 });
             }
 
-            // 圖表 1：橫條圖（在第一名的軸標籤旁加上皇冠 👑）
+            // 圖表 1：橫條圖
             const ctxRanking = document.getElementById('rankingChart').getContext('2d');
             if (rankingChartInstance) rankingChartInstance.destroy();
             rankingChartInstance = new Chart(ctxRanking, {
@@ -362,24 +360,14 @@
                     maintainAspectRatio: false,
                     plugins: { 
                         legend: { display: false },
-                        // 利用 datalabels 在第一名旁邊顯示皇冠
-                        datalabels: {
-                            display: true,
-                            anchor: 'start',
-                            align: 'start',
-                            offset: 45, // 往左位移放到標籤附近
-                            color: '#eab308', // 金色
-                            font: { size: 14 },
-                            formatter: (value, context) => {
-                                return context.dataIndex === 0 ? '👑' : '';
-                            }
-                        }
+                        // 將長條圖內部的 datalabels 關閉，只留下 Y 軸標籤旁的皇冠
+                        datalabels: { display: false }
                     },
                     scales: { 
                         x: { beginAtZero: true, ticks: { precision: 0 } },
                         y: {
                             ticks: {
-                                // 也可以直接把 Y 軸文字改掉，確保萬無一失
+                                // 僅在 Y 軸文字（國家名稱）第一名旁加上皇冠 👑
                                 callback: function(value, index) {
                                     const label = this.getLabelForValue(value);
                                     return index === 0 ? '👑 ' + label : label;
