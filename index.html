@@ -13,8 +13,10 @@
     <style>
         body { font-family: 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', sans-serif; }
         #map { width: 100%; height: 100%; border-radius: 0.75rem; z-index: 1; }
-        .gold-marker {
-            filter: hue-rotate(140deg) brightness(1.2) drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
+        
+        /* 第一名專用的橘色地標濾鏡 */
+        .orange-marker {
+            filter: hue-rotate(15deg) brightness(1.1) saturate(1.3) drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
         }
     </style>
 </head>
@@ -57,7 +59,7 @@
                     <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
                         目的地國家交換人數排名 (前 15 名)
                     </h2>
-                    <p class="text-[11px] text-green-600 font-medium mb-2">前三名以綠色突顯，且第一名國家將在地圖上以紅色地標標記！</p>
+                    <p class="text-[11px] text-orange-600 font-medium mb-2">第一名以橘色突顯並帶有皇冠，二、三名以深藍色呈現！</p>
                     <div class="flex-1 relative min-h-0">
                         <canvas id="rankingChart"></canvas>
                     </div>
@@ -67,7 +69,7 @@
                     <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
                         前三名熱門交換國家地理定位
                     </h2>
-                    <p class="text-[11px] text-slate-400 mb-2">第一名為紅色地標，第二、三名為藍色地標</p>
+                    <p class="text-[11px] text-slate-400 mb-2">第一名為橘色地標，第二、三名為藍色地標</p>
                     <div class="flex-1 rounded-xl overflow-hidden border border-slate-100 relative min-h-0">
                         <div id="map"></div>
                     </div>
@@ -265,14 +267,18 @@
             const countryLabels = sortedCountries.map(x => x[0]);
             const countryValues = sortedCountries.map(x => x[1]);
 
+            // 修改長條圖顏色：第一名橘色，第二三名深藍色，其餘淺藍色
             const barBackgroundColors = [];
             const barBorderColors = [];
             for (let i = 0; i < countryValues.length; i++) {
-                if (i < 3) {
-                    barBackgroundColors.push('rgba(34, 197, 94, 0.85)'); 
-                    barBorderColors.push('rgb(22, 163, 74)');
+                if (i === 0) {
+                    barBackgroundColors.push('rgba(249, 115, 22, 0.85)'); // 第一名：橘色 (Tailwind orange-500)
+                    barBorderColors.push('rgb(234, 88, 12)');
+                } else if (i === 1 || i === 2) {
+                    barBackgroundColors.push('rgba(30, 58, 138, 0.85)');  // 第二、三名：深藍色 (Tailwind blue-900)
+                    barBorderColors.push('rgb(23, 37, 84)');
                 } else {
-                    barBackgroundColors.push('rgba(59, 130, 246, 0.75)');
+                    barBackgroundColors.push('rgba(59, 130, 246, 0.75)'); // 其餘：原本的藍色
                     barBorderColors.push('rgb(37, 99, 235)');
                 }
             }
@@ -295,21 +301,33 @@
 
                 if (coordinates) {
                     let markerOptions = {};
+                    let medal = '';
+                    let titleText = '';
+
                     if (index === 0) {
-                        const goldIcon = L.divIcon({
-                            className: 'gold-marker',
+                        medal = '🥇';
+                        titleText = '第一名';
+                        // 第一名：改用橘色濾鏡樣式
+                        const orangeIcon = L.divIcon({
+                            className: 'orange-marker',
                             html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png" style="width:25px; height:41px;"/>`,
                             iconSize: [25, 41],
                             iconAnchor: [12, 41],
                             popupAnchor: [1, -34]
                         });
-                        markerOptions.icon = goldIcon;
+                        markerOptions.icon = orangeIcon;
+                    } else if (index === 1) {
+                        medal = '🥈';
+                        titleText = '第二名';
+                    } else if (index === 2) {
+                        medal = '🥉';
+                        titleText = '第三名';
                     }
 
                     const marker = L.marker(coordinates, markerOptions).addTo(mapInstance)
                         .bindPopup(`
                             <div style="font-family: sans-serif; font-size:13px; line-height: 1.4;">
-                                <b style="color:${index === 0 ? '#b45309' : '#16a34a'}; font-size:14px;">🏆 第 ${index + 1} 名</b><br>
+                                <b style="color:${index === 0 ? '#ea580c' : '#1e3a8a'}; font-size:14px;">${medal} ${titleText}</b><br>
                                 <b>國家：</b>${countryName}<br>
                                 <b>交流人數：</b>${countValue} 人
                             </div>
@@ -325,7 +343,7 @@
                 mapInstance.fitBounds(latLngBounds, { padding: [60, 60], maxZoom: 4 });
             }
 
-            // 圖表 1：橫條圖
+            // 圖表 1：橫條圖（在第一名的軸標籤旁加上皇冠 👑）
             const ctxRanking = document.getElementById('rankingChart').getContext('2d');
             if (rankingChartInstance) rankingChartInstance.destroy();
             rankingChartInstance = new Chart(ctxRanking, {
@@ -346,18 +364,38 @@
                     maintainAspectRatio: false,
                     plugins: { 
                         legend: { display: false },
-                        datalabels: { display: false }
+                        // 利用 datalabels 在第一名旁邊顯示皇冠
+                        datalabels: {
+                            display: true,
+                            anchor: 'start',
+                            align: 'start',
+                            offset: 45, // 往左位移放到標籤附近
+                            color: '#eab308', // 金色
+                            font: { size: 14 },
+                            formatter: (value, context) => {
+                                return context.dataIndex === 0 ? '👑' : '';
+                            }
+                        }
                     },
-                    scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+                    scales: { 
+                        x: { beginAtZero: true, ticks: { precision: 0 } },
+                        y: {
+                            ticks: {
+                                // 也可以直接把 Y 軸文字改掉，確保萬無一失
+                                callback: function(value, index) {
+                                    const label = this.getLabelForValue(value);
+                                    return index === 0 ? '👑 ' + label : label;
+                                }
+                            }
+                        }
+                    }
                 }
             });
 
-            // 圖表 2：大區域分佈（已新增自動百分比顯示與排版優化）
+            // 圖表 2：大區域分佈
             const regionLabels = Object.keys(regionCounters);
             const regionValues = Object.values(regionCounters);
             const regionColors = ['#f59e0b', '#8b5cf6', '#14b8a6', '#ec4899', '#64748b', '#22c55e', '#ef4444', '#3b82f6'];
-            
-            // 計算大區域數據的總人數，供百分比計算使用
             const regionTotal = regionValues.reduce((sum, val) => sum + val, 0);
 
             const ctxRegion = document.getElementById('regionChart').getContext('2d');
@@ -385,7 +423,6 @@
                             formatter: (value) => {
                                 if (value === 0 || regionTotal === 0) return '';
                                 const percentage = ((value / regionTotal) * 100).toFixed(1);
-                                // 當比例大於 4% 時才在圓餅圖內顯示標籤，避免極小區塊擠在一起
                                 return percentage > 4 ? `${percentage}%` : '';
                             },
                             textAlign: 'center'
@@ -397,7 +434,6 @@
             // 圖表 3：男女比例圓餅圖
             const ctxGender = document.getElementById('genderChart').getContext('2d');
             if (genderChartInstance) genderChartInstance.destroy();
-            
             const genderTotal = totalMale + totalFemale;
 
             genderChartInstance = new Chart(ctxGender, {
@@ -433,4 +469,3 @@
     </script>
 </body>
 </html>
-
