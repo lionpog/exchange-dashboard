@@ -16,7 +16,7 @@
         
         /* 第一名專用的橘色地標濾鏡 */
         .orange-marker {
-            filter: hue-rotate(15deg) brightness(1.1) saturate(1.3) drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
+            filter: hue-rotate(165deg) brightness(0.9) saturate(3) drop-shadow(0px 2px 4px rgba(0,0,0,0.4));
         }
     </style>
 </head>
@@ -67,6 +67,7 @@
                     <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2 mb-1">
                         前三名熱門交換國家地理定位
                     </h2>
+                    <p class="text-[11px] text-slate-400 mb-2">第一名為橘色地標，第二、三名為藍色地標</p>
                     <div class="flex-1 rounded-xl overflow-hidden border border-slate-100 relative min-h-0">
                         <div id="map"></div>
                     </div>
@@ -264,18 +265,17 @@
             const countryLabels = sortedCountries.map(x => x[0]);
             const countryValues = sortedCountries.map(x => x[1]);
 
-            // 修改長條圖顏色：第一名橘色，第二三名深藍色，其餘淺藍色
             const barBackgroundColors = [];
             const barBorderColors = [];
             for (let i = 0; i < countryValues.length; i++) {
                 if (i === 0) {
-                    barBackgroundColors.push('rgba(249, 115, 22, 0.85)'); // 第一名：橘色
+                    barBackgroundColors.push('rgba(249, 115, 22, 0.85)'); 
                     barBorderColors.push('rgb(234, 88, 12)');
                 } else if (i === 1 || i === 2) {
-                    barBackgroundColors.push('rgba(30, 58, 138, 0.85)');  // 第二、三名：深藍色
+                    barBackgroundColors.push('rgba(30, 58, 138, 0.85)');  
                     barBorderColors.push('rgb(23, 37, 84)');
                 } else {
-                    barBackgroundColors.push('rgba(59, 130, 246, 0.75)'); // 其餘：淺藍色
+                    barBackgroundColors.push('rgba(59, 130, 246, 0.75)'); 
                     barBorderColors.push('rgb(37, 99, 235)');
                 }
             }
@@ -301,9 +301,12 @@
                     let medal = '';
                     let titleText = '';
 
+                    // 判斷名次決定彈出視窗資訊
                     if (index === 0) {
                         medal = '🥇';
                         titleText = '第一名';
+                        
+                        // 【關鍵修改】只有第一名套用橘色濾鏡地標
                         const orangeIcon = L.divIcon({
                             className: 'orange-marker',
                             html: `<img src="https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png" style="width:25px; height:41px;"/>`,
@@ -315,6 +318,7 @@
                     } else if (index === 1) {
                         medal = '🥈';
                         titleText = '第二名';
+                        // 第二、三名不給予特殊的 icon 設定，Leaflet 就會自動套用預設的藍色圖標
                     } else if (index === 2) {
                         medal = '🥉';
                         titleText = '第三名';
@@ -360,14 +364,12 @@
                     maintainAspectRatio: false,
                     plugins: { 
                         legend: { display: false },
-                        // 將長條圖內部的 datalabels 關閉，只留下 Y 軸標籤旁的皇冠
                         datalabels: { display: false }
                     },
                     scales: { 
                         x: { beginAtZero: true, ticks: { precision: 0 } },
                         y: {
                             ticks: {
-                                // 僅在 Y 軸文字（國家名稱）第一名旁加上皇冠 👑
                                 callback: function(value, index) {
                                     const label = this.getLabelForValue(value);
                                     return index === 0 ? '👑 ' + label : label;
