@@ -14,7 +14,6 @@
         body { font-family: 'PingFang TC', 'Heiti TC', 'Microsoft JhengHei', sans-serif; }
         #map { width: 100%; height: 100%; border-radius: 0.75rem; z-index: 1; }
         
-        /* 移除原本不穩定的 CSS filter，改加陰影效果即可 */
         .custom-marker {
             filter: drop-shadow(0px 3px 5px rgba(0,0,0,0.4));
         }
@@ -68,3 +67,64 @@
                         前三名熱門交換國家地理定位
                     </h2>
                     <div class="flex-1 rounded-xl overflow-hidden border border-slate-100 relative min-h-0">
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-3 gap-4">
+                <div class="bg-blue-50/70 border border-blue-100 p-3 rounded-xl text-center shadow-xs">
+                    <p class="text-xs text-blue-600 font-bold">總交流人數</p>
+                    <p id="totalStudents" class="text-xl md:text-2xl font-black text-blue-700">0</p>
+                </div>
+                <div class="bg-indigo-50/70 border border-indigo-100 p-3 rounded-xl text-center shadow-xs">
+                    <p class="text-xs text-indigo-600 font-bold">男生人數</p>
+                    <p id="totalMaleCount" class="text-xl md:text-2xl font-black text-indigo-700">0</p>
+                </div>
+                <div class="bg-rose-50/70 border border-rose-100 p-3 rounded-xl text-center shadow-xs">
+                    <p class="text-xs text-rose-600 font-bold">女生人數</p>
+                    <p id="totalFemaleCount" class="text-xl md:text-2xl font-black text-rose-700">0</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div class="bg-white p-5 rounded-2xl shadow-xs flex flex-col h-[380px]">
+                    <h2 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        出國進修交流大區域分佈
+                    </h2>
+                    <div class="flex-1 relative flex justify-center items-center min-h-0">
+                        <div class="w-[300px] h-[300px]">
+                            <canvas id="regionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-5 rounded-2xl shadow-xs flex flex-col h-[380px]">
+                    <h2 class="text-sm font-bold text-slate-800 mb-2 flex items-center gap-2">
+                        交流學生性別比例分布
+                    </h2>
+                    <div class="flex-1 relative flex justify-center items-center min-h-0">
+                        <div class="w-[260px] h-[260px]">
+                            <canvas id="genderChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+         </main>
+    </div>
+
+    <script>
+        Chart.register(ChartDataLabels);
+
+        const csvFileName = "學5.日間學制本國學生出國進修交流人數-以「系(所)」統計.csv";
+        let rawData = [];
+        
+        let rankingChartInstance = null;
+        let genderChartInstance = null;
+        let regionChartInstance = null;
+        let mapInstance = null;
+        let mapMarkers = [];
+
+        const countryCoordinates = {
+            "日本":
